@@ -129,7 +129,6 @@ func (s *SynapseClient) GetUsers() (Users, error) {
 	}
 	defer resp.Body.Close()
 	bodyBytes, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return Users{}, err
 	}

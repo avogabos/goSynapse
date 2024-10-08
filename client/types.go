@@ -8,31 +8,17 @@ type Users struct {
 		Name  string        `json:"name"`
 		Rules []interface{} `json:"rules"`
 		Roles []struct {
-			Type      string        `json:"type"`
-			Iden      string        `json:"iden"`
-			Name      string        `json:"name"`
-			Rules     []interface{} `json:"rules"`
-			Authgates struct {
-				Fbc01A0C8170508Af6A9A759046Cdb struct {
-					Rules [][]interface{} `json:"rules"`
-				} `json:"03fbc01a0c8170508af6a9a759046cdb"`
-				B599864235Fd98225D8Db5Bdc6D632E4 struct {
-					Rules [][]interface{} `json:"rules"`
-				} `json:"b599864235fd98225d8db5bdc6d632e4"`
-			} `json:"authgates"`
+			Type      string                            `json:"type"`
+			Iden      string                            `json:"iden"`
+			Name      string                            `json:"name"`
+			Rules     []interface{}                     `json:"rules"`
+			Authgates map[string]map[string]interface{} `json:"authgates"`
 		} `json:"roles"`
-		Admin     bool        `json:"admin"`
-		Email     interface{} `json:"email"`
-		Locked    bool        `json:"locked"`
-		Archived  bool        `json:"archived"`
-		Authgates struct {
-			Fbc01A0C8170508Af6A9A759046Cdb struct {
-				Admin bool `json:"admin"`
-			} `json:"03fbc01a0c8170508af6a9a759046cdb,omitempty"`
-			B599864235Fd98225D8Db5Bdc6D632E4 struct {
-				Admin bool `json:"admin"`
-			} `json:"b599864235fd98225d8db5bdc6d632e4,omitempty"`
-		} `json:"authgates"`
+		Admin     bool                              `json:"admin"`
+		Email     string                            `json:"email"`
+		Locked    bool                              `json:"locked"`
+		Archived  bool                              `json:"archived"`
+		Authgates map[string]map[string]interface{} `json:"authgates"`
 	} `json:"result"`
 }
 
@@ -89,18 +75,11 @@ type ErrorMessage struct {
 type Roles struct {
 	Status string `json:"status"`
 	Result []struct {
-		Type      string        `json:"type"`
-		Iden      string        `json:"iden"`
-		Name      string        `json:"name"`
-		Rules     []interface{} `json:"rules"`
-		Authgates struct {
-			Fbc01A0C8170508Af6A9A759046Cdb struct {
-				Rules [][]interface{} `json:"rules"`
-			} `json:"03fbc01a0c8170508af6a9a759046cdb"`
-			B599864235Fd98225D8Db5Bdc6D632E4 struct {
-				Rules [][]interface{} `json:"rules"`
-			} `json:"b599864235fd98225d8db5bdc6d632e4"`
-		} `json:"authgates"`
+		Type      string                     `json:"type"`
+		Iden      string                     `json:"iden"`
+		Name      string                     `json:"name"`
+		Rules     []interface{}              `json:"rules"`
+		Authgates map[string][][]interface{} `json:"authgates"`
 	} `json:"result"`
 }
 
