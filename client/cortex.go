@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/url"
 )
@@ -100,14 +99,11 @@ func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) (
 	if err != nil {
 		return nil, err
 	}
-	init, nodes, fini, err := ParseJSONStream(bodyBytes)
+	_, nodes, _, err := ParseJSONStream(bodyBytes)
 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(init)
-	fmt.Println(nodes)
-	fmt.Println(fini)
 
 	return nodes, nil
 }
