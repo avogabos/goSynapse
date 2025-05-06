@@ -14,6 +14,7 @@ type SynapseClient struct {
 func NewSynapseClient(host string, port string, apiKey string) *SynapseClient {
 	client := &http.Client{}
 	baseReq := &http.Request{}
+	baseReq.Header = make(http.Header)
 	if apiKey != "" {
 		baseReq.Header.Add(apiKeyHeader, apiKey)
 	}

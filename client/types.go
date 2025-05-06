@@ -31,7 +31,7 @@ type Feed struct {
 
 type Storm struct {
 	Query  string   `json:"query"`
-	Opts   []string `json:"opts"`
+	Opts   []string ` json:"opts,omitempty"`
 	Stream string   `json:"stream"`
 }
 

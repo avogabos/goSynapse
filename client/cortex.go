@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 )
@@ -66,25 +67,25 @@ func (s *SynapseClient) Feed(nodes Nodes) error {
 	return nil
 }
 
-func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) (string, error) {
+func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) ([]Node, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
-	reqUrl := s.Host + ":" + s.Port + storm
+	reqUrl := "https://" + s.Host + ":" + s.Port + storm
 	err := error(nil)
 	newReq.URL, err = url.Parse(reqUrl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	storm := Storm{
+	stormQ := Storm{
 		Query:  stormQuery,
 		Opts:   opts,
 		Stream: stream,
 	}
 
-	jsonBody, err := json.Marshal(storm)
+	jsonBody, err := json.Marshal(stormQ)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	bodyBuffer := bytes.NewBuffer(jsonBody)
@@ -92,29 +93,23 @@ func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) (
 
 	resp, err := s.HttpClient.Do(newReq)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
 	defer resp.Body.Close()
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	init, nodes, fini, err := ParseJSONStream(bodyBytes)
 
-	respJson := GenericMessage{}
-	err = json.Unmarshal(bodyBytes, &respJson)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	if respJson.Status != "ok" {
-		respError := ErrorMessage{}
-		err = json.Unmarshal(bodyBytes, &respError)
-		if err != nil {
-			return "", errors.New("Storm failed: " + err.Error())
-		}
-	}
+	fmt.Println(init)
+	fmt.Println(nodes)
+	fmt.Println(fini)
 
-	return string(bodyBytes), nil
+	return nodes, nil
 }
 
 func (s *SynapseClient) StormCall(stormQuery string, opts []string) (string, error) {
