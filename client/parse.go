@@ -51,7 +51,7 @@ type FiniData struct {
 // ParseJSONStream handles multiple JSON arrays in a stream
 func ParseJSONStream(input []byte) ([]InitData, []Node, []FiniData, error) {
 	reader := bufio.NewReader(bytes.NewReader(input))
-
+	fmt.Println(string(input))
 	var initList []InitData
 	var nodeList []Node
 	var finiList []FiniData

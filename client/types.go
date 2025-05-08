@@ -30,9 +30,9 @@ type Feed struct {
 }
 
 type Storm struct {
-	Query  string   `json:"query"`
-	Opts   []string ` json:"opts,omitempty"`
-	Stream string   `json:"stream"`
+	Query  string            `json:"query"`
+	Opts   map[string]string ` json:"opts,omitempty"`
+	Stream string            `json:"stream"`
 }
 
 type StormCall struct {

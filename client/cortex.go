@@ -2,9 +2,12 @@ package client
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 )
 
@@ -66,14 +69,17 @@ func (s *SynapseClient) Feed(nodes Nodes) error {
 	return nil
 }
 
-func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) ([]Node, error) {
+func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream string) ([]InitData, []Node, []FiniData, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
 	reqUrl := "https://" + s.Host + ":" + s.Port + storm
 	err := error(nil)
 	newReq.URL, err = url.Parse(reqUrl)
 	if err != nil {
-		return nil, err
+		return []InitData{}, nil, []FiniData{}, err
+	}
+	s.HttpClient.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	stormQ := Storm{
@@ -84,34 +90,34 @@ func (s *SynapseClient) Storm(stormQuery string, opts []string, stream string) (
 
 	jsonBody, err := json.Marshal(stormQ)
 	if err != nil {
-		return nil, err
+		return []InitData{}, nil, []FiniData{}, err
 	}
 
 	bodyBuffer := bytes.NewBuffer(jsonBody)
 	newReq.Body = io.NopCloser(bodyBuffer)
-
 	resp, err := s.HttpClient.Do(newReq)
 	if err != nil {
-		return nil, err
+		return []InitData{}, nil, []FiniData{}, err
 	}
+	fmt.Println("Storm response status:", resp.Status)
 	defer resp.Body.Close()
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return []InitData{}, nil, []FiniData{}, err
 	}
-	_, nodes, _, err := ParseJSONStream(bodyBytes)
+	init, nodes, fin, err := ParseJSONStream(bodyBytes)
 
 	if err != nil {
-		return nil, err
+		return []InitData{}, nil, []FiniData{}, err
 	}
 
-	return nodes, nil
+	return init, nodes, fin, nil
 }
 
 func (s *SynapseClient) StormCall(stormQuery string, opts []string) (string, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
-	reqUrl := s.Host + ":" + s.Port + stormCall
+	reqUrl := "https://" + s.Host + ":" + s.Port + stormCall
 	err := error(nil)
 	newReq.URL, err = url.Parse(reqUrl)
 	if err != nil {
