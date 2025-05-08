@@ -72,7 +72,7 @@ func (s *SynapseClient) Feed(nodes Nodes) error {
 func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream string) ([]InitData, []Node, []FiniData, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
-	reqUrl := "https://" + s.Host + ":" + s.Port + storm
+	reqUrl := s.Host + ":" + s.Port + storm
 	err := error(nil)
 	newReq.URL, err = url.Parse(reqUrl)
 	if err != nil {
@@ -117,7 +117,7 @@ func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream 
 func (s *SynapseClient) StormCall(stormQuery string, opts []string) (string, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
-	reqUrl := "https://" + s.Host + ":" + s.Port + stormCall
+	reqUrl := s.Host + ":" + s.Port + stormCall
 	err := error(nil)
 	newReq.URL, err = url.Parse(reqUrl)
 	if err != nil {

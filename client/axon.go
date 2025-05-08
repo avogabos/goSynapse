@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 )
@@ -120,7 +121,7 @@ func (s *SynapseClient) AxonHas(sha256 string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
+	fmt.Println(string(bodyBytes))
 	respJson := GenericMessage{}
 	err = json.Unmarshal(bodyBytes, &respJson)
 	if err != nil {
@@ -132,6 +133,11 @@ func (s *SynapseClient) AxonHas(sha256 string) (bool, error) {
 		if err != nil {
 			return false, errors.New("AxonHas failed: " + err.Error())
 		}
+	}
+	fmt.Println(fmt.Sprintf("%v", respJson.Result))
+	if fmt.Sprintf("%v", respJson.Result) == "false" {
+		return false, nil
+
 	}
 	return true, nil
 }

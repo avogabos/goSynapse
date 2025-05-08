@@ -65,7 +65,7 @@ func (s *SynapseClient) Login(username string, password string) error {
 }
 
 func (s *SynapseClient) Logout() error {
-	logoutString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, logout)
+	logoutString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, logout)
 	req, err := http.NewRequest("GET", logoutString, nil)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (s *SynapseClient) Logout() error {
 }
 
 func (s *SynapseClient) GetActive() error {
-	activeString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, active)
+	activeString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, active)
 	activeUrl, err := url.Parse(activeString)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func (s *SynapseClient) GetActive() error {
 }
 
 func (s *SynapseClient) GetUsers() (Users, error) {
-	usersString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, getUsers)
+	usersString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, getUsers)
 	req, err := http.NewRequest("GET", usersString, nil)
 	if err != nil {
 		return Users{}, err
@@ -141,7 +141,7 @@ func (s *SynapseClient) GetUsers() (Users, error) {
 }
 
 func (s *SynapseClient) GetRoles() (Roles, error) {
-	rolesString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, getRoles)
+	rolesString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, getRoles)
 	req, err := http.NewRequest("GET", rolesString, nil)
 	if err != nil {
 		return Roles{}, err
@@ -166,7 +166,7 @@ func (s *SynapseClient) GetRoles() (Roles, error) {
 }
 
 func (s *SynapseClient) AddUser(username string) (GenericMessage, error) {
-	addUserString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, addUser)
+	addUserString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, addUser)
 	bodyJson := map[string]string{
 		"name": username,
 	}
@@ -201,7 +201,7 @@ func (s *SynapseClient) AddUser(username string) (GenericMessage, error) {
 }
 
 func (s *SynapseClient) AddRole(roleName string) (GenericMessage, error) {
-	addRoleString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, addRole)
+	addRoleString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, addRole)
 	bodyJson := map[string]string{
 		"name": roleName,
 	}
@@ -236,7 +236,7 @@ func (s *SynapseClient) AddRole(roleName string) (GenericMessage, error) {
 }
 
 func (s *SynapseClient) DeleteRole(roleName string) (GenericMessage, error) {
-	deleteRoleString := fmt.Sprintf("https://%s:%s%s", s.Host, s.Port, deleteRole)
+	deleteRoleString := fmt.Sprintf("%s:%s%s", s.Host, s.Port, deleteRole)
 	bodyJson := map[string]string{
 		"name": roleName,
 	}
@@ -271,7 +271,7 @@ func (s *SynapseClient) DeleteRole(roleName string) (GenericMessage, error) {
 }
 
 func (s *SynapseClient) ModifyUser(iden string, user UserMod) (GenericMessage, error) {
-	modUserString := fmt.Sprintf("https://%s:%s%s%s", s.Host, s.Port, modUser, iden)
+	modUserString := fmt.Sprintf("%s:%s%s%s", s.Host, s.Port, modUser, iden)
 	bodyJsonMarshal, _ := json.Marshal(user)
 	bodyBuf := bytes.NewBuffer(bodyJsonMarshal)
 
@@ -298,7 +298,7 @@ func (s *SynapseClient) ModifyUser(iden string, user UserMod) (GenericMessage, e
 }
 
 func (s *SynapseClient) ChangePassword(iden string, password string) (GenericMessage, error) {
-	changePassString := fmt.Sprintf("https://%s:%s%s%s", s.Host, s.Port, changePass, iden)
+	changePassString := fmt.Sprintf("%s:%s%s%s", s.Host, s.Port, changePass, iden)
 	bodyJson := map[string]string{
 		"passwd": password,
 	}

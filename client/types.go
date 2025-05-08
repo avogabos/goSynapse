@@ -91,8 +91,8 @@ type Active struct {
 }
 
 type GenericMessage struct {
-	Status string   `json:"status"`
-	Result struct{} `json:"result"`
+	Status string      `json:"status"`
+	Result interface{} `json:"result"`
 }
 
 type CortexModel struct {
