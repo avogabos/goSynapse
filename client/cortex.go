@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
@@ -9,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -69,7 +71,7 @@ func (s *SynapseClient) Feed(nodes Nodes) error {
 	return nil
 }
 
-func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream string) ([]InitData, []Node, []FiniData, error) {
+func (s *SynapseClient) Storm(stormQuery string, opts map[string]string) ([]InitData, []Node, []FiniData, error) {
 	newReq := s.BaseRequest
 	newReq.Method = "GET"
 	reqUrl := s.Host + ":" + s.Port + storm
@@ -85,7 +87,7 @@ func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream 
 	stormQ := Storm{
 		Query:  stormQuery,
 		Opts:   opts,
-		Stream: stream,
+		Stream: "jsonlines",
 	}
 
 	jsonBody, err := json.Marshal(stormQ)
@@ -101,9 +103,17 @@ func (s *SynapseClient) Storm(stormQuery string, opts map[string]string, stream 
 	}
 	fmt.Println("Storm response status:", resp.Status)
 	defer resp.Body.Close()
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return []InitData{}, nil, []FiniData{}, err
+	reader := bufio.NewReader(resp.Body)
+	bodyBytes := []byte{}
+	for {
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			break
+		}
+		bodyBytes = append(bodyBytes, line...)
+		if strings.Contains(string(line), "[\"fini\", {") {
+			break
+		}
 	}
 	init, nodes, fin, err := ParseJSONStream(bodyBytes)
 
