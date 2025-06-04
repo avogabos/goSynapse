@@ -16,6 +16,7 @@ dependencies = [
     "requests",
     "python-dotenv",
 ]
+dependencies = ["requests"]
 
 [project.urls]
 Homepage = "https://github.com/habitualdev/goSynapse"
