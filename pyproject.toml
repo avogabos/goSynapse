@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gosynapse"
+version = "0.1.0"
+description = "Python client migrated from goSynapse"
+authors = [
+    { name = "Unknown" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = [
+    "requests",
+    "python-dotenv",
+]
+
+[project.urls]
+Homepage = "https://github.com/habitualdev/goSynapse"
+
+[tool.setuptools.package-dir]
+"" = "src"
