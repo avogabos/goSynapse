@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
 
 import requests  # type: ignore
@@ -26,7 +26,7 @@ class SynapseClient:
     host: str
     port: str
     api_key: str = ""
-    session: requests.Session = requests.Session()
+    session: requests.Session = field(default_factory=requests.Session)
 
     def _url(self, path: str) -> str:
         return f"https://{self.host}:{self.port}{path}"
