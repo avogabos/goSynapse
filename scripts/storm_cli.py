@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -13,8 +14,16 @@ def main() -> None:
     port = os.environ.get("SYNAPSE_PORT", "443")
     api_key = os.environ.get("SYNAPSE_API_KEY", "")
 
+    cortex_url = os.environ.get("CORTEX_URL")
+    if cortex_url:
+        parsed = urlparse(cortex_url)
+        if parsed.hostname:
+            host = parsed.hostname
+        if parsed.port:
+            port = str(parsed.port)
+
     client = SynapseClient(host=host, port=port, api_key=api_key)
-    output_file = Path("storm_results.json")
+    output_file = Path(os.environ.get("OUTPUT_FILE", "storm_results.json"))
 
     while True:
         query = input("storm> ").strip()
