@@ -107,20 +107,37 @@ class SynapseClient:
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
         payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
-        resp = self.session.get(url, json=payload, headers=self._headers(), verify=False, stream=True)
+        # Synapse expects a POST request for executing Storm queries. Using GET
+        # results in a 404 on most deployments.
+        resp = self.session.post(
+            url,
+            json=payload,
+            headers=self._headers(),
+            verify=False,
+            stream=True,
+        )
         resp.raise_for_status()
         body = resp.content
         return parse_json_stream(body)
 
     def storm_call(self, storm_query: str, opts: List[str]) -> GenericMessage:
         url = self._url("/api/v1/storm/call")
-        resp = self.session.get(url, json={"query": storm_query, "opts": opts}, headers=self._headers())
+        # Storm function invocations are made via POST requests
+        resp = self.session.post(
+            url,
+            json={"query": storm_query, "opts": opts},
+            headers=self._headers(),
+        )
         resp.raise_for_status()
         return GenericMessage(**resp.json())
 
     def storm_export(self, storm_query: str, opts: List[str]) -> GenericMessage:
         url = self._url("/api/v1/storm/export")
-        resp = self.session.get(url, json={"query": storm_query, "opts": opts}, headers=self._headers())
+        resp = self.session.post(
+            url,
+            json={"query": storm_query, "opts": opts},
+            headers=self._headers(),
+        )
         resp.raise_for_status()
         return GenericMessage(**resp.json())
 
