@@ -37,9 +37,14 @@ class SynapseClient:
             headers[API_KEY_HEADER] = self.api_key
         return headers
 
-    def login(self, username: str, password: str) -> None:
+    def login(self, username: str, password: str, verify: bool = True) -> None:
         url = self._url("/api/v1/login")
-        resp = self.session.post(url, json={"user": username, "passwd": password}, headers=self._headers(), verify=False)
+        resp = self.session.post(
+            url,
+            json={"user": username, "passwd": password},
+            headers=self._headers(),
+            verify=verify,
+        )
         resp.raise_for_status()
         self.session.headers.update({"Cookie": resp.headers.get("Set-Cookie", "")})
 
@@ -103,7 +108,10 @@ class SynapseClient:
         return GenericMessage(**resp.json())
 
     def storm(
-        self, storm_query: str, opts: Optional[Dict[str, str]] = None
+        self,
+        storm_query: str,
+        opts: Optional[Dict[str, str]] = None,
+        verify: bool = True,
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
         payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
@@ -113,7 +121,7 @@ class SynapseClient:
             url,
             json=payload,
             headers=self._headers(),
-            verify=False,
+            verify=verify,
             stream=True,
         )
         resp.raise_for_status()

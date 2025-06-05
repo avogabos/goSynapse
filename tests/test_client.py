@@ -34,16 +34,43 @@ def test_storm_uses_get(monkeypatch):
 
     get_resp = FakeResponse(200, b'data')
 
-    monkeypatch.setattr(cli.session, 'get', lambda *a, **k: get_resp)
+    captured = {}
+    def fake_get(*args, **kwargs):
+        captured['verify'] = kwargs.get('verify')
+        return get_resp
+
+    monkeypatch.setattr(cli.session, 'get', fake_get)
 
     result_tuple = ([InitData(tick=1, text='', abstick=0, hash='', task='')], [], [])
-    captured = {}
+    parsed = {}
     def fake_parse_json_stream(data):
-        captured['data'] = data
+        parsed['data'] = data
         return result_tuple
     monkeypatch.setattr(client_module, 'parse_json_stream', fake_parse_json_stream)
 
     init, nodes, fini = cli.storm('foo')
 
     assert init == result_tuple[0]
-    assert captured['data'] == b'data'
+    assert parsed['data'] == b'data'
+    assert captured['verify'] is True
+
+
+def test_storm_verify_flag(monkeypatch):
+    cli = SynapseClient(host='h', port='1')
+
+    get_resp = FakeResponse(200, b'data')
+
+    captured = {}
+
+    def fake_get(*args, **kwargs):
+        captured['verify'] = kwargs.get('verify')
+        return get_resp
+
+    monkeypatch.setattr(cli.session, 'get', fake_get)
+
+    result_tuple = ([InitData(tick=1, text='', abstick=0, hash='', task='')], [], [])
+    monkeypatch.setattr(client_module, 'parse_json_stream', lambda d: result_tuple)
+
+    cli.storm('foo', verify=False)
+
+    assert captured['verify'] is False

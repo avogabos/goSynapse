@@ -16,6 +16,11 @@ def main() -> None:
     port = os.environ.get("SYNAPSE_PORT", "443")
     api_key = os.environ.get("SYNAPSE_API_KEY", "")
     view = os.environ.get("SYNAPSE_VIEW_ID")
+    verify_tls = os.environ.get("SYNAPSE_VERIFY_TLS", "true").lower() not in {
+        "0",
+        "false",
+        "no",
+    }
 
     client = SynapseClient(host=host, port=port, api_key=api_key)
     output_file = Path("storm_results.json")
@@ -26,7 +31,7 @@ def main() -> None:
             break
         opts = {"view": view} if view else None
         try:
-            init, nodes, fini = client.storm(query, opts=opts)
+            init, nodes, fini = client.storm(query, opts=opts, verify=verify_tls)
         except Exception as exc:  # requests.HTTPError or connection errors
             logging.error("Storm query failed: %s", exc)
             continue
