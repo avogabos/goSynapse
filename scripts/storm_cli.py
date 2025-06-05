@@ -15,8 +15,9 @@ def main() -> None:
     host = os.environ.get("SYNAPSE_HOST", "localhost")
     port = os.environ.get("SYNAPSE_PORT", "443")
     api_key = os.environ.get("SYNAPSE_API_KEY", "")
+    view_layer_id = os.environ.get("INTERNAL_VIEW_LAYER_ID")
 
-    client = SynapseClient(host=host, port=port, api_key=api_key)
+    client = SynapseClient(host=host, port=port, api_key=api_key, view_layer_id=view_layer_id)
     output_file = Path("storm_results.json")
 
     while True:

@@ -26,6 +26,7 @@ class SynapseClient:
     host: str
     port: str
     api_key: str = ""
+    view_layer_id: Optional[str] = None
     session: requests.Session = field(default_factory=requests.Session)
 
     def _url(self, path: str) -> str:
@@ -98,7 +99,10 @@ class SynapseClient:
 
     def feed(self, nodes: Dict[str, str]) -> GenericMessage:
         url = self._url("/api/v1/feed")
-        resp = self.session.post(url, json=nodes, headers=self._headers())
+        payload: Dict[str, Any] = {"items": nodes}
+        if self.view_layer_id:
+            payload["view"] = self.view_layer_id
+        resp = self.session.post(url, json=payload, headers=self._headers())
         resp.raise_for_status()
         return GenericMessage(**resp.json())
 
@@ -106,7 +110,11 @@ class SynapseClient:
         self, storm_query: str, opts: Optional[Dict[str, str]] = None
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
-        payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
+        opts = opts or {}
+        if self.view_layer_id:
+            # Don't overwrite explicit caller opts
+            opts = {**{"view": self.view_layer_id}, **opts}
+        payload = {"query": storm_query, "opts": opts, "stream": "jsonlines"}
         resp = self.session.get(url, json=payload, headers=self._headers(), verify=False, stream=True)
         resp.raise_for_status()
         body = resp.content

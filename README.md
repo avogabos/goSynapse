@@ -29,7 +29,10 @@ Example `.env`:
 SYNAPSE_HOST=synapse.example.com
 SYNAPSE_PORT=443
 SYNAPSE_API_KEY=your-api-key
+INTERNAL_VIEW_LAYER_ID=optional-view-id
 ```
+
+`INTERNAL_VIEW_LAYER_ID` specifies a view or layer to use for all Storm queries. If omitted, the server's default view is used.
 
 ## Launching the CLI
 
