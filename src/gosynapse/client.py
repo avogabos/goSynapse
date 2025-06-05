@@ -107,8 +107,9 @@ class SynapseClient:
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
         payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
-        # Synapse expects a POST request for executing Storm queries. Using GET
-        # results in a 404 on most deployments.
+        # Newer Synapse releases expect POST for Storm queries, but some
+        # deployments still use GET. Attempt a POST first and fall back to GET
+        # if the endpoint returns 404.
         resp = self.session.post(
             url,
             json=payload,
@@ -116,6 +117,14 @@ class SynapseClient:
             verify=False,
             stream=True,
         )
+        if resp.status_code == 404:
+            resp = self.session.get(
+                url,
+                json=payload,
+                headers=self._headers(),
+                verify=False,
+                stream=True,
+            )
         resp.raise_for_status()
         body = resp.content
         return parse_json_stream(body)
