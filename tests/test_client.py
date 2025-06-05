@@ -29,13 +29,11 @@ class FakeResponse:
             raise self.HTTPError(f"{self.status_code} error")
 
 
-def test_storm_fallback_to_get(monkeypatch):
+def test_storm_uses_get(monkeypatch):
     cli = SynapseClient(host='h', port='1')
 
-    post_resp = FakeResponse(404)
     get_resp = FakeResponse(200, b'data')
 
-    monkeypatch.setattr(cli.session, 'post', lambda *a, **k: post_resp)
     monkeypatch.setattr(cli.session, 'get', lambda *a, **k: get_resp)
 
     result_tuple = ([InitData(tick=1, text='', abstick=0, hash='', task='')], [], [])
