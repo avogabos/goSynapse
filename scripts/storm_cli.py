@@ -25,7 +25,11 @@ def main() -> None:
         if not query or query.lower() in {"quit", "exit"}:
             break
         opts = {"view": view} if view else None
-        init, nodes, fini = client.storm(query, opts=opts)
+        try:
+            init, nodes, fini = client.storm(query, opts=opts)
+        except Exception as exc:  # requests.HTTPError or connection errors
+            logging.error("Storm query failed: %s", exc)
+            continue
         result = {
             "init": [i.__dict__ for i in init],
             "nodes": [n.__dict__ for n in nodes],
