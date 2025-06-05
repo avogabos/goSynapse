@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -8,6 +9,8 @@ from gosynapse.client import SynapseClient
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("urllib3").setLevel(logging.DEBUG)
     load_dotenv()
     host = os.environ.get("SYNAPSE_HOST", "localhost")
     port = os.environ.get("SYNAPSE_PORT", "443")
