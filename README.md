@@ -29,6 +29,7 @@ Example `.env`:
 SYNAPSE_HOST=synapse.example.com
 SYNAPSE_PORT=443
 SYNAPSE_API_KEY=your-api-key
+SYNAPSE_VIEW_ID=<view-guid>
 ```
 
 ## Launching the CLI

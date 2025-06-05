@@ -15,6 +15,7 @@ def main() -> None:
     host = os.environ.get("SYNAPSE_HOST", "localhost")
     port = os.environ.get("SYNAPSE_PORT", "443")
     api_key = os.environ.get("SYNAPSE_API_KEY", "")
+    view = os.environ.get("SYNAPSE_VIEW_ID")
 
     client = SynapseClient(host=host, port=port, api_key=api_key)
     output_file = Path("storm_results.json")
@@ -23,7 +24,8 @@ def main() -> None:
         query = input("storm> ").strip()
         if not query or query.lower() in {"quit", "exit"}:
             break
-        init, nodes, fini = client.storm(query)
+        opts = {"view": view} if view else None
+        init, nodes, fini = client.storm(query, opts=opts)
         result = {
             "init": [i.__dict__ for i in init],
             "nodes": [n.__dict__ for n in nodes],
