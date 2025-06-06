@@ -52,10 +52,12 @@ file automatically and requires the following variables:
 SYNAPSE_HOST
 SYNAPSE_PORT
 SYNAPSE_API_KEY
+SYNAPSE_VIEW_ID
 ```
 
-The script checks `/api/v1/active` and executes a trivial Storm query via
-`/api/v1/storm/call`. If either check fails, it exits with status code `1`.
+The script checks `/api/v1/active`, executes a trivial Storm query via
+`/api/v1/storm/call`, and performs a small streaming query against the
+`/api/v1/storm` endpoint. If any check fails, it exits with status code `1`.
 
 Run it after activating your environment:
 
