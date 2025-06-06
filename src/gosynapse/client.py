@@ -109,9 +109,10 @@ class SynapseClient:
         payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
         logger.debug("Storm request URL: %s", url)
         logger.debug("Storm request payload: %s", payload)
-        # The original Go client sends Storm queries using a GET request with the
-        # JSON payload in the body. Mirror that behaviour here for consistency.
-        resp = self.session.get(
+        # Use POST for Storm queries. Some Cortex deployments do not expose the
+        # legacy GET /storm endpoint, so using POST ensures broader
+        # compatibility while still returning the streaming JSON lines.
+        resp = self.session.post(
             url,
             json=payload,
             headers=self._headers(),
