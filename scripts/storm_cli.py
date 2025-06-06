@@ -2,6 +2,7 @@ import json
 import os
 import logging
 from pathlib import Path
+import sys
 
 from dotenv import load_dotenv
 
@@ -11,11 +12,22 @@ from gosynapse.client import SynapseClient
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("urllib3").setLevel(logging.DEBUG)
-    load_dotenv()
-    host = os.environ.get("SYNAPSE_HOST", "localhost")
-    port = os.environ.get("SYNAPSE_PORT", "443")
-    api_key = os.environ.get("SYNAPSE_API_KEY", "")
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    load_dotenv(dotenv_path=env_path)
+
+    host = os.environ.get("SYNAPSE_HOST", "").strip()
+    port = os.environ.get("SYNAPSE_PORT", "").strip()
+    api_key = os.environ.get("SYNAPSE_API_KEY", "").strip()
     view = os.environ.get("SYNAPSE_VIEW_ID")
+
+    missing = [name for name, val in [
+        ("SYNAPSE_HOST", host),
+        ("SYNAPSE_PORT", port),
+        ("SYNAPSE_API_KEY", api_key),
+    ] if not val]
+    if missing:
+        logging.error("Missing required environment variables: %s", ", ".join(missing))
+        sys.exit(1)
 
     client = SynapseClient(host=host, port=port, api_key=api_key)
     output_file = Path("storm_results.json")

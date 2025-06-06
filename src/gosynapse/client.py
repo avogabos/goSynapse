@@ -49,10 +49,16 @@ class SynapseClient:
         resp.raise_for_status()
 
     def get_active(self) -> Active:
+        """Return the Active dataclass, handling multiple response formats."""
         url = self._url("/api/v1/active")
         resp = self.session.get(url, headers=self._headers())
         resp.raise_for_status()
-        return Active(**resp.json())
+        data = resp.json()
+        if isinstance(data, dict) and "status" in data:
+            return Active(**data)
+        if isinstance(data, dict) and "active" in data:
+            return Active(status="ok", result={"active": data["active"]})
+        raise ValueError(f"Unexpected /active response: {data}")
 
     def get_users(self) -> Users:
         url = self._url("/api/v1/auth/users")
@@ -107,6 +113,8 @@ class SynapseClient:
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
         payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
+        logger.debug("Storm request URL: %s", url)
+        logger.debug("Storm request payload: %s", payload)
         # The original Go client sends Storm queries using a GET request with the
         # JSON payload in the body. Mirror that behaviour here for consistency.
         resp = self.session.get(
@@ -116,8 +124,10 @@ class SynapseClient:
             verify=False,
             stream=True,
         )
+        logger.debug("Storm response status code: %s", resp.status_code)
         resp.raise_for_status()
         body = resp.content
+        logger.debug("Storm response body: %s", body.decode(errors="ignore"))
         return parse_json_stream(body)
 
     def storm_call(self, storm_query: str, opts: List[str]) -> GenericMessage:
