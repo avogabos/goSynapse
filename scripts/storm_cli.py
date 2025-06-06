@@ -2,6 +2,7 @@ import json
 import os
 import logging
 from pathlib import Path
+from dataclasses import asdict
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -34,9 +35,9 @@ def main() -> None:
             logging.error("Storm query failed: %s", exc)
             continue
         result = {
-            "init": [i.__dict__ for i in init],
-            "nodes": [n.__dict__ for n in nodes],
-            "fini": [f.__dict__ for f in fini],
+            "init": [asdict(i) for i in init],
+            "nodes": [asdict(n) for n in nodes],
+            "fini": [asdict(f) for f in fini],
         }
         with output_file.open("a", encoding="utf-8") as f:
             json.dump(result, f)
