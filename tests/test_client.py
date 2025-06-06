@@ -33,21 +33,26 @@ class FakeResponse:
             raise self.HTTPError(f"{self.status_code} error")
 
 
-def test_storm_uses_post(monkeypatch):
-    cli = SynapseClient(host='h', port='1')
+def test_storm_post_fallback_to_get(monkeypatch):
+    """POST is attempted first and GET is used if POST returns 404."""
+    cli = SynapseClient(host="h", port="1")
 
-    post_resp = FakeResponse(200, b'data')
+    post_resp = FakeResponse(404, b"notfound")
+    get_resp = FakeResponse(200, b"data")
 
-    monkeypatch.setattr(cli.session, 'post', lambda *a, **k: post_resp)
+    monkeypatch.setattr(cli.session, "post", lambda *a, **k: post_resp)
+    monkeypatch.setattr(cli.session, "get", lambda *a, **k: get_resp)
 
-    result_tuple = ([InitData(tick=1, text='', abstick=0, hash='', task='')], [], [])
+    result_tuple = ([InitData(tick=1, text="", abstick=0, hash="", task="")], [], [])
     captured = {}
-    def fake_parse_json_stream(data):
-        captured['data'] = data
-        return result_tuple
-    monkeypatch.setattr(client_module, 'parse_json_stream', fake_parse_json_stream)
 
-    init, nodes, fini = cli.storm('foo')
+    def fake_parse_json_stream(data):
+        captured["data"] = data
+        return result_tuple
+
+    monkeypatch.setattr(client_module, "parse_json_stream", fake_parse_json_stream)
+
+    init, nodes, fini = cli.storm("foo")
 
     assert init == result_tuple[0]
-    assert captured['data'] == b'data'
+    assert captured["data"] == b"data"
