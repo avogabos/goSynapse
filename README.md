@@ -21,7 +21,8 @@ pytest
 
 ## Configuration
 
-`storm_cli.py` reads its configuration from environment variables which can be supplied via a `.env` file in the project root.
+Both the CLI and the health check read configuration from environment variables.  
+Place these in a `.env` file in the project root and they will be loaded automatically.
 
 Example `.env`:
 
@@ -44,11 +45,20 @@ At the `storm>` prompt type your Storm queries. Type `exit` or `quit` to leave.
 
 ## Health Check Utility
 
-A small helper script is provided to verify that your Synapse instance is reachable.
-Run it using the same environment variables as the CLI:
+`scripts/health_check.py` verifies connectivity to your Cortex. It loads the `.env`
+file automatically and requires the following variables:
+
+```
+SYNAPSE_HOST
+SYNAPSE_PORT
+SYNAPSE_API_KEY
+```
+
+The script checks `/api/v1/active` and executes a trivial Storm query via
+`/api/v1/storm/call`. If either check fails, it exits with status code `1`.
+
+Run it after activating your environment:
 
 ```bash
 python scripts/health_check.py
 ```
-
-The script will query the `/core/info` and `/active` endpoints and print the results as JSON. A non-zero exit code indicates the check failed.
