@@ -106,12 +106,16 @@ class SynapseClient:
         self, storm_query: str, opts: Optional[Dict[str, str]] = None
     ) -> tuple[List[InitData], List[Node], List[FiniData]]:
         url = self._url("/api/v1/storm")
-        payload = {"query": storm_query, "opts": opts or {}, "stream": "jsonlines"}
+        payload = {
+            "query": storm_query,
+            "opts": opts or {},
+            "stream": "jsonlines",
+        }
         logger.debug("Storm request URL: %s", url)
         logger.debug("Storm request payload: %s", payload)
-        # Use POST for Storm queries. Some Cortex deployments do not expose the
-        # legacy GET /storm endpoint, so using POST ensures broader
-        # compatibility while still returning the streaming JSON lines.
+        # Use POST for Storm queries when possible. Some Cortex deployments only
+        # support the legacy GET endpoint. In that case fall back to GET with the
+        # same JSON payload.
         resp = self.session.post(
             url,
             json=payload,
@@ -120,6 +124,16 @@ class SynapseClient:
             stream=True,
         )
         logger.debug("Storm response status code: %s", resp.status_code)
+        if resp.status_code == 404:
+            logger.debug("POST /storm returned 404, falling back to GET")
+            resp = self.session.get(
+                url,
+                json=payload,
+                headers=self._headers(),
+                verify=False,
+                stream=True,
+            )
+            logger.debug("Storm GET fallback status: %s", resp.status_code)
         resp.raise_for_status()
         body = resp.content
         logger.debug("Storm response body: %s", body.decode(errors="ignore"))
