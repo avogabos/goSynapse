@@ -49,10 +49,16 @@ class SynapseClient:
         resp.raise_for_status()
 
     def get_active(self) -> Active:
+        """Return the Active dataclass, handling multiple response formats."""
         url = self._url("/api/v1/active")
         resp = self.session.get(url, headers=self._headers())
         resp.raise_for_status()
-        return Active(**resp.json())
+        data = resp.json()
+        if isinstance(data, dict) and "status" in data:
+            return Active(**data)
+        if isinstance(data, dict) and "active" in data:
+            return Active(status="ok", result={"active": data["active"]})
+        raise ValueError(f"Unexpected /active response: {data}")
 
     def get_users(self) -> Users:
         url = self._url("/api/v1/auth/users")

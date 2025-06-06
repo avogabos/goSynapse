@@ -11,19 +11,25 @@ class Dummy:
 
 
 def test_main_success(monkeypatch, capsys):
-    monkeypatch.setattr(SynapseClient, "core_info", lambda self: Dummy(status="ok", result={}))
-    monkeypatch.setattr(SynapseClient, "get_active", lambda self: Dummy(status="ok", result={}))
+    monkeypatch.setenv("SYNAPSE_HOST", "host")
+    monkeypatch.setenv("SYNAPSE_PORT", "443")
+    monkeypatch.setenv("SYNAPSE_API_KEY", "key")
+    monkeypatch.setattr(SynapseClient, "get_active", lambda self: Dummy(status="ok", result={"active": True}))
+    monkeypatch.setattr(SynapseClient, "storm_call", lambda self, q, opts: Dummy(status="ok", result=1))
     exit_code = main()
     out = capsys.readouterr().out
     data = json.loads(out)
     assert exit_code == 0
-    assert "core_info" in data
-    assert "active" in data
+    assert data["active"]["active"] is True
+    assert data["storm_call_result"] == 1
 
 
 def test_main_failure(monkeypatch):
+    monkeypatch.setenv("SYNAPSE_HOST", "host")
+    monkeypatch.setenv("SYNAPSE_PORT", "443")
+    monkeypatch.setenv("SYNAPSE_API_KEY", "key")
     def boom(*args, **kwargs):
         raise Exception("fail")
-    monkeypatch.setattr(SynapseClient, "core_info", boom)
+    monkeypatch.setattr(SynapseClient, "get_active", boom)
     exit_code = main()
     assert exit_code == 1
