@@ -1,29 +1,49 @@
-import json
-import importlib.util
-
-from gosynapse.client import SynapseClient
+import requests
 from gosynapse.healthcheck import main
 
 
-class Dummy:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+class Resp:
+    def __init__(self, data):
+        self._data = data
+        self.status_code = 200
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._data
 
 
 def test_main_success(monkeypatch, capsys):
-    monkeypatch.setattr(SynapseClient, "core_info", lambda self: Dummy(status="ok", result={}))
-    monkeypatch.setattr(SynapseClient, "get_active", lambda self: Dummy(status="ok", result={}))
+    monkeypatch.setenv("SYNAPSE_HOST", "h")
+    monkeypatch.setenv("SYNAPSE_PORT", "1")
+    monkeypatch.setenv("SYNAPSE_API_KEY", "k")
+
+    monkeypatch.setattr(
+        requests,
+        "get",
+        lambda *a, **k: Resp({"status": "ok", "result": {"active": True}}),
+    )
+    monkeypatch.setattr(
+        requests,
+        "post",
+        lambda *a, **k: Resp({"status": "ok", "result": 1}),
+    )
+
     exit_code = main()
     out = capsys.readouterr().out
-    data = json.loads(out)
     assert exit_code == 0
-    assert "core_info" in data
-    assert "active" in data
+    assert "All health checks passed" in out
 
 
 def test_main_failure(monkeypatch):
-    def boom(*args, **kwargs):
-        raise Exception("fail")
-    monkeypatch.setattr(SynapseClient, "core_info", boom)
+    monkeypatch.setenv("SYNAPSE_HOST", "h")
+    monkeypatch.setenv("SYNAPSE_PORT", "1")
+    monkeypatch.setenv("SYNAPSE_API_KEY", "k")
+
+    def boom(*a, **k):
+        raise requests.HTTPError("fail")
+
+    monkeypatch.setattr(requests, "get", boom)
     exit_code = main()
     assert exit_code == 1

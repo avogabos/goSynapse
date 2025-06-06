@@ -3,7 +3,7 @@ import os
 import logging
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 from gosynapse.client import SynapseClient
 
@@ -11,11 +11,14 @@ from gosynapse.client import SynapseClient
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("urllib3").setLevel(logging.DEBUG)
-    load_dotenv()
-    host = os.environ.get("SYNAPSE_HOST", "localhost")
-    port = os.environ.get("SYNAPSE_PORT", "443")
-    api_key = os.environ.get("SYNAPSE_API_KEY", "")
+    load_dotenv(find_dotenv(usecwd=True))
+    host = os.environ.get("SYNAPSE_HOST", "").strip()
+    port = os.environ.get("SYNAPSE_PORT", "").strip()
+    api_key = os.environ.get("SYNAPSE_API_KEY", "").strip()
     view = os.environ.get("SYNAPSE_VIEW_ID")
+
+    if not host or not port:
+        raise SystemExit("SYNAPSE_HOST and SYNAPSE_PORT must be defined in .env")
 
     client = SynapseClient(host=host, port=port, api_key=api_key)
     output_file = Path("storm_results.json")
