@@ -41,3 +41,14 @@ python scripts/storm_cli.py
 ```
 
 At the `storm>` prompt type your Storm queries. Type `exit` or `quit` to leave.
+
+## Health Check Utility
+
+A small helper script is provided to verify that your Synapse instance is reachable.
+Run it using the same environment variables as the CLI:
+
+```bash
+python scripts/health_check.py
+```
+
+The script will query the `/core/info` and `/active` endpoints and print the results as JSON. A non-zero exit code indicates the check failed.
