@@ -15,9 +15,28 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from dotenv import load_dotenv, find_dotenv
-from urllib3.exceptions import InsecureRequestWarning
-import urllib3
+try:
+    from dotenv import load_dotenv, find_dotenv
+except Exception:  # pragma: no cover - optional dependency
+    def load_dotenv(*_args, **_kwargs):
+        """Fallback no-op if python-dotenv is not installed."""
+        return False
+
+    def find_dotenv(*_args, **_kwargs) -> str:
+        return ""
+try:
+    from urllib3.exceptions import InsecureRequestWarning
+    import urllib3
+except Exception:  # pragma: no cover - optional dependency
+    class InsecureRequestWarning(Exception):
+        pass
+
+    class Dummy:
+        @staticmethod
+        def disable_warnings(*_a, **_k):
+            pass
+
+    urllib3 = Dummy()
 
 logger = logging.getLogger(__name__)
 
