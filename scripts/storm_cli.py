@@ -3,6 +3,13 @@ import os
 import logging
 from pathlib import Path
 from dataclasses import asdict
+import sys
+
+# Ensure the local gosynapse package is importable when running the script
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_PATH = PROJECT_ROOT / "src"
+if SRC_PATH.exists() and str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
 
 from dotenv import load_dotenv, find_dotenv
 
