@@ -30,7 +30,7 @@ def main() -> None:
             break
         opts = {"view": view} if view else None
         try:
-            init, nodes, fini = client.storm(query, opts=opts)
+            init, nodes, fini, prints = client.storm(query, opts=opts)
         except Exception as exc:  # requests.HTTPError or connection errors
             logging.error("Storm query failed: %s", exc)
             continue
@@ -38,6 +38,7 @@ def main() -> None:
             "init": [asdict(i) for i in init],
             "nodes": [asdict(n) for n in nodes],
             "fini": [asdict(f) for f in fini],
+            "print": [asdict(p) for p in prints],
         }
         with output_file.open("a", encoding="utf-8") as f:
             json.dump(result, f)

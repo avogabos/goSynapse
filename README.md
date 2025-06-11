@@ -43,6 +43,13 @@ python scripts/storm_cli.py
 
 At the `storm>` prompt type your Storm queries. Type `exit` or `quit` to leave.
 
+Each command's output is appended to `storm_results.json`. The file now
+records any text printed by the Cortex under a `"print"` key. Counts from
+queries like `| count` appear here even though they don't emit nodes.
+If you do not see the `"print"` list, ensure the CLI is using the local
+`gosynapse` code by running `pip install -e .` or by setting
+`PYTHONPATH=src` before launching the script.
+
 ## Health Check Utility
 
 `scripts/health_check.py` verifies connectivity to your Cortex. It loads the `.env`

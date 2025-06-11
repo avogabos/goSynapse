@@ -14,7 +14,7 @@ from .types import (
     CortexModel,
     AxonDelete,
 )
-from .parse import parse_json_stream, InitData, Node, FiniData
+from .parse import parse_json_stream, InitData, Node, FiniData, PrintData
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class SynapseClient:
 
     def storm(
         self, storm_query: str, opts: Optional[Dict[str, str]] = None
-    ) -> tuple[List[InitData], List[Node], List[FiniData]]:
+    ) -> tuple[List[InitData], List[Node], List[FiniData], List[PrintData]]:
         url = self._url("/api/v1/storm")
         payload = {
             "query": storm_query,

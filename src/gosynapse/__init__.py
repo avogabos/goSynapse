@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:  # requests may be missing in some environments
     SynapseClient = object()
 
-from .parse import parse_json_stream, InitData, Node, FiniData  # noqa: E402
+from .parse import parse_json_stream, InitData, Node, FiniData, PrintData  # noqa: E402
 from .types import (  # noqa: E402
     Users,
     Roles,
@@ -25,6 +25,7 @@ __all__ = [
     "InitData",
     "Node",
     "FiniData",
+    "PrintData",
     "Users",
     "Roles",
     "Active",

@@ -43,7 +43,7 @@ def test_storm_post_fallback_to_get(monkeypatch):
     monkeypatch.setattr(cli.session, "post", lambda *a, **k: post_resp)
     monkeypatch.setattr(cli.session, "get", lambda *a, **k: get_resp)
 
-    result_tuple = ([InitData(tick=1, text="", abstick=0, hash="", task="")], [], [])
+    result_tuple = ([InitData(tick=1, text="", abstick=0, hash="", task="")], [], [], [])
     captured = {}
 
     def fake_parse_json_stream(data):
@@ -52,7 +52,8 @@ def test_storm_post_fallback_to_get(monkeypatch):
 
     monkeypatch.setattr(client_module, "parse_json_stream", fake_parse_json_stream)
 
-    init, nodes, fini = cli.storm("foo")
+    init, nodes, fini, prints = cli.storm("foo")
 
     assert init == result_tuple[0]
+    assert prints == result_tuple[3]
     assert captured["data"] == b"data"
