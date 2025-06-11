@@ -63,7 +63,8 @@ def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[Fini
     print_items: List[PrintData] = []
 
     for line in reader.readlines():
-        buffer += line.decode()
+        decoded = line.decode()
+        buffer += decoded
         buffer = buffer.strip()
         if not buffer:
             continue
@@ -71,9 +72,11 @@ def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[Fini
             data, index = decoder.raw_decode(buffer)
             buffer = buffer[index:].lstrip()
         except json.JSONDecodeError:
+            logger.debug("Failed to decode JSON line: %s", decoded.strip())
             continue
 
         if not isinstance(data, list) or not data:
+            logger.debug("Unexpected storm message: %s", data)
             continue
         key = data[0]
         payload = data[1]
