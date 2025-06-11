@@ -39,14 +39,19 @@ class FiniData:
     count: int
 
 
-def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[FiniData]]:
+@dataclass
+class PrintData:
+    mesg: str
+
+
+def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[FiniData], List[PrintData]]:
     """Parse a stream of JSON messages produced by Synapse.
 
     Args:
         raw: Raw bytes from the server.
 
     Returns:
-        A tuple of lists: (init messages, nodes, fini messages).
+        A tuple of lists: (init messages, nodes, fini messages, print messages).
     """
     reader = BytesIO(raw)
     decoder = json.JSONDecoder()
@@ -55,6 +60,7 @@ def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[Fini
     init_items: List[InitData] = []
     nodes: List[Node] = []
     fini_items: List[FiniData] = []
+    print_items: List[PrintData] = []
 
     for line in reader.readlines():
         buffer += line.decode()
@@ -80,6 +86,8 @@ def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[Fini
                     node_pairs.append([str(x) for x in pair])
             info = NodeData(**payload[1])
             nodes.append(Node(key="node", data=node_pairs, info=info))
+        elif key == "print":
+            print_items.append(PrintData(**payload))
         elif key == "fini":
             fini_items.append(FiniData(**payload))
-    return init_items, nodes, fini_items
+    return init_items, nodes, fini_items, print_items
