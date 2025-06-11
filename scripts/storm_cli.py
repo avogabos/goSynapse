@@ -41,6 +41,8 @@ def main() -> None:
         except Exception as exc:  # requests.HTTPError or connection errors
             logging.error("Storm query failed: %s", exc)
             continue
+        logging.debug("Storm prints: %s", prints)
+        logging.debug("Storm nodes count: %s", len(nodes))
         result = {
             "init": [asdict(i) for i in init],
             "nodes": [asdict(n) for n in nodes],

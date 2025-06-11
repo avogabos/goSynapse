@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Tuple, Any
 import json
-from io import BytesIO
 import logging
 
 logger = logging.getLogger(__name__)
@@ -53,27 +52,24 @@ def parse_json_stream(raw: bytes) -> Tuple[List[InitData], List[Node], List[Fini
     Returns:
         A tuple of lists: (init messages, nodes, fini messages, print messages).
     """
-    reader = BytesIO(raw)
-    decoder = json.JSONDecoder()
-    buffer = ""
-
+    text = raw.decode(errors="ignore")
     init_items: List[InitData] = []
     nodes: List[Node] = []
     fini_items: List[FiniData] = []
     print_items: List[PrintData] = []
 
-    for line in reader.readlines():
-        buffer += line.decode()
-        buffer = buffer.strip()
-        if not buffer:
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
             continue
         try:
-            data, index = decoder.raw_decode(buffer)
-            buffer = buffer[index:].lstrip()
+            data = json.loads(line)
         except json.JSONDecodeError:
+            logger.debug("Failed to decode JSON line: %s", line)
             continue
 
-        if not isinstance(data, list) or not data:
+        if not isinstance(data, list) or len(data) < 2:
+            logger.debug("Unexpected storm message: %s", data)
             continue
         key = data[0]
         payload = data[1]
